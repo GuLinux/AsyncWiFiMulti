@@ -1,0 +1,5 @@
+build
+.pio
+test/aps_configuration.h
+.vscode
+

@@ -1,0 +1,28 @@
+{
+  "name": "AsyncWiFiMulti",
+  "version": "0.1.0",
+  "description": "Async implementation for WiFiMulti on ESP32",
+  "keywords": "wifi, wifimulti, async",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/GuLinux/AsyncWiFiMulti"
+  },
+  "authors":
+  [
+    {
+      "name": "Marco Gulino",
+      "email": "marco@gulinux.net",
+      "url": "https://gulinux.net",
+      "maintainer": true
+    }
+  ],
+  "license": "GPLv3",
+  "homepage": "https://github.com/GuLinux/AsyncWiFiMulti",
+  "dependencies": {
+  },
+  "frameworks": "arduino",
+  "platforms": [
+      "espressif32"
+  ]
+}
