@@ -2,6 +2,18 @@
 
 This is a small library for the ESP32 platform, with the intent of replacing the [WiFiMulti](https://github.com/espressif/arduino-esp32/blob/master/libraries/WiFi/src/WiFiMulti.h) class with an asynchronous verson.
 
+
+## Installation
+
+If using PlatformIO, simply add
+```
+gulinux/AsyncWiFiMulti@^0.1.0
+```
+to the `lib_deps` section of your project.
+
+[![PlatformIO Registry](https://badges.registry.platformio.org/packages/gulinux/library/AsyncWiFiMulti.svg)](https://registry.platformio.org/libraries/gulinux/AsyncWiFiMulti)
+
+
 ## API
 
 ```
@@ -49,7 +61,7 @@ There is a third callback available `OnDisconnected`. This will *only* be called
 
 ## Examples/tests
 
-Please look at the [test file](test/main.cpp) for a working example on how to use the class.
+Please look at the [test file](https://github.com/GuLinux/AsyncWiFiMulti/blob/main/test/main.cpp) for a working example on how to use the class.
 
 You can also launch tests using platformio using the `pio test` command. You only need to provide an `aps_configuration.h` file filled with your APs credentials.
 
