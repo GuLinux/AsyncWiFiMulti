@@ -47,6 +47,13 @@ There is a third callback available `OnDisconnected`. This will *only* be called
     void onDisconnected(OnDisconnected callback);
 ```
 
+## Examples/tests
+
+Please look at the [test file](test/main.cpp) for a working example on how to use the class.
+
+You can also launch tests using platformio using the `pio test` command. You only need to provide an `aps_configuration.h` file filled with your APs credentials.
+
+
 
 `onConnected` and `onFailure` will only be called if `AsyncWiFiMulti` is currently in `running` state. `running` will be set to `true` after calling `start`, 
 and will be set to `false` after either a successful connection, or a failure.
