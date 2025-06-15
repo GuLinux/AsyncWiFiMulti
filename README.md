@@ -5,7 +5,10 @@ This is a small library for the ESP32 platform, with the intent of replacing the
 
 ## Installation
 
-If using PlatformIO, simply add
+### PlatformIO
+
+If using PlatformIO, simply use the library manager, or add
+
 ```
 gulinux/AsyncWiFiMulti@^0.1.0
 ```
@@ -13,6 +16,9 @@ to the `lib_deps` section of your project.
 
 [![PlatformIO Registry](https://badges.registry.platformio.org/packages/gulinux/library/AsyncWiFiMulti.svg)](https://registry.platformio.org/libraries/gulinux/AsyncWiFiMulti)
 
+### Arduino
+
+You can just install this library using the builtin library manager, or by going to the [releases](https://github.com/GuLinux/AsyncWiFiMulti/releases) page, downloading the zip fileof the version you want to install, and unzipping it in your `Arduino/libraries` folder. See the [arduino docs](https://docs.arduino.cc/software/ide-v1/tutorials/installing-libraries/) for more details.
 
 ## API
 

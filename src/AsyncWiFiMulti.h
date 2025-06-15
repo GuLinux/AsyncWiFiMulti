@@ -5,8 +5,15 @@
 #include <stdint.h>
 #include <list>
 
+#define WIFI_MULTI_LOGLEVEL_DEBUG   3
+#define WIFI_MULTI_LOGLEVEL_VERBOSE 2
+#define WIFI_MULTI_LOGLEVEL_INFO    1
+#define WIFI_MULTI_LOGLEVEL_NONE    0
+
+
+
 #ifndef DEBUG_WIFI_MULTI
-#define DEBUG_WIFI_MULTI 0
+#define DEBUG_WIFI_MULTI WIFI_MULTI_LOGLEVEL_NONE
 #endif
 
 #ifndef DEBUG_WIFI_MULTI_PORT
@@ -63,6 +70,7 @@ private:
 
     void onEvent(arduino_event_id_t, const arduino_event_info_t&);
     void onScanDone(const wifi_event_sta_scan_done_t &scanInfo);
+    void onFailure();
     void tryNextAP();
     wifi_event_id_t event_id = 0;
 };

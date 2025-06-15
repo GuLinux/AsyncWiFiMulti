@@ -2,10 +2,26 @@
 #include <functional>
 #include <Arduino.h>
 
-#if DEBUG_WIFI_MULTI
-#define DBG(...) DEBUG_WIFI_MULTI_PORT.printf("[AsyncWiFiMulti] "); DEBUG_WIFI_MULTI_PORT.printf(__VA_ARGS__); DEBUG_WIFI_MULTI_PORT.println()
-#else
-#define DBG(...)
+#define __DBG(level, ...) DEBUG_WIFI_MULTI_PORT.printf("[" level "][AsyncWiFiMulti] "); DEBUG_WIFI_MULTI_PORT.printf(__VA_ARGS__); DEBUG_WIFI_MULTI_PORT.println()
+
+#if DEBUG_WIFI_MULTI >= WIFI_MULTI_LOGLEVEL_DEBUG
+#define lDebug(...) __DBG("DEBUG", __VA_ARGS__)
+#endif
+#if DEBUG_WIFI_MULTI >= WIFI_MULTI_LOGLEVEL_VERBOSE
+#define lVerbose(...) __DBG("VERBOSE", __VA_ARGS__)
+#endif
+#if DEBUG_WIFI_MULTI >= WIFI_MULTI_LOGLEVEL_INFO
+#define lInfo(...) __DBG("INFO", __VA_ARGS__)
+#endif
+
+#ifndef lDebug
+#define lDebug(...)
+#endif
+#ifndef lVerbose
+#define lVerbose(...)
+#endif
+#ifndef lInfo
+#define lInfo(...)
 #endif
 
 using namespace GuLinux;
@@ -20,25 +36,25 @@ AsyncWiFiMulti::~AsyncWiFiMulti() {
 
 bool AsyncWiFiMulti::addAP(const char* ssid, const char *passphrase) {
     const ApSettings newAP = {ssid, passphrase};
-    DBG("Adding AP: %s", newAP.ssid.c_str());
+    lVerbose("Adding AP: %s", newAP.ssid.c_str());
     if(!newAP.valid()) {
-        DBG("Invalid AP, skipping");
+        lInfo("Invalid AP, skipping");
         return false;
     }
     if(std::any_of(configuredAPs.begin(), configuredAPs.end(), [&newAP](const ApSettings& ap) {
         return ap.ssid == newAP.ssid;
     })) {
-        DBG("AP %s already exists, skipping", newAP.ssid.c_str());
+        lInfo("AP %s already exists, skipping", newAP.ssid.c_str());
         return false;
     }
-    DBG("AP %s added successfully", newAP.ssid.c_str());
+    lVerbose("AP %s added successfully", newAP.ssid.c_str());
     configuredAPs.push_front(newAP);
     return true;
 }
 
 bool AsyncWiFiMulti::start() {
     if(running) {
-        DBG("AsyncWiFiMulti already running");
+        lInfo("AsyncWiFiMulti already running");
         return false;
     }
     WiFi.disconnect(true);
@@ -65,25 +81,25 @@ void AsyncWiFiMulti::onEvent(arduino_event_id_t event_type, const arduino_event_
         if(event_type == ARDUINO_EVENT_WIFI_STA_DISCONNECTED) {
             char ssid[33] = {0};
             memcpy(ssid, event_info.wifi_sta_disconnected.ssid, event_info.wifi_sta_disconnected.ssid_len);
-            DBG("WiFi disconnected: %s, reason: %d", ssid, event_info.wifi_sta_disconnected.reason);
+            lInfo("WiFi disconnected: %s, reason: %d", ssid, event_info.wifi_sta_disconnected.reason);
             if(onDisconnectedCallback) {
                 onDisconnectedCallback(ssid, event_info.wifi_sta_disconnected.reason);
             }
         }
         return;
     }
-    DBG("Event received: %d", event_type);
+    lDebug("Event received: %d", event_type);
     switch (event_type) {
     case ARDUINO_EVENT_WIFI_SCAN_DONE:
         onScanDone(event_info.wifi_scan_done);  
         break;
     case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-        DBG("WiFi disconnected: reason=%d", event_info.wifi_sta_disconnected.reason);
+        lVerbose("WiFi disconnected: reason=%d", event_info.wifi_sta_disconnected.reason);
         currentAp++;
         tryNextAP();
         break;
     case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-        DBG("WiFi connected: SSID=`%s`, IP=%s", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
+        lInfo("WiFi connected: SSID=`%s`, IP=%s", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
         if(onConnectedCallback) {
             onConnectedCallback(*currentAp);
         }
@@ -96,9 +112,10 @@ void AsyncWiFiMulti::onEvent(arduino_event_id_t event_type, const arduino_event_
 }
 
 void AsyncWiFiMulti::onScanDone(const wifi_event_sta_scan_done_t &scanInfo) {
-    DBG("Scan done: status=%d, number=%d, scan_id=%d", scanInfo.status, scanInfo.number, scanInfo.scan_id);
+    lVerbose("Scan done: status=%d, number=%d, scan_id=%d", scanInfo.status, scanInfo.number, scanInfo.scan_id);
     if(scanInfo.status != 0) {
-        DBG("Scan failed with status %d", scanInfo.status);
+        lInfo("Scan failed with status %d", scanInfo.status);
+        onFailure();
         return;
     }
     
@@ -110,7 +127,7 @@ void AsyncWiFiMulti::onScanDone(const wifi_event_sta_scan_done_t &scanInfo) {
             WiFi.RSSI(i),
             WiFi.channel(i),
         };
-        DBG("Found AP: %s, RSSI: %d, channel: %i", found.ssid.c_str(), found.rssi, found.channel);
+        lDebug("Found AP: %s, RSSI: %d, channel: %i", found.ssid.c_str(), found.rssi, found.channel);
         allFoundAPs.push_front(found);
     }
     
@@ -134,27 +151,32 @@ void AsyncWiFiMulti::onScanDone(const wifi_event_sta_scan_done_t &scanInfo) {
     }
 
     #if DEBUG_WIFI_MULTI
-    DBG("Sorted APs by RSSI:");
+    lDebug("Sorted APs by RSSI:");
     for(const auto &ap : allFoundAPs) {
-        DBG("Scan AP: [%d] %s", ap.rssi, ap.ssid.c_str());
+        lDebug("Scan AP: [%d] %s", ap.rssi, ap.ssid.c_str());
     }
     for(const auto &ap : foundAPs) {
-        DBG("Found configured AP: %s, RSSI: %d, channel: %i, passphrase: %s", ap.ssid.c_str(), ap.rssi, ap.channel, ap.passphrase.c_str());
+        lDebug("Found configured AP: %s, RSSI: %d, channel: %i, passphrase: %s", ap.ssid.c_str(), ap.rssi, ap.channel, ap.passphrase.c_str());
     }
     #endif
     currentAp = foundAPs.begin();
     tryNextAP();
 }
 
+void GuLinux::AsyncWiFiMulti::onFailure() {
+    lInfo("Failed to connect to any configured APs");
+    if(onFailureCallback) {
+        onFailureCallback();
+    }
+    running = false;
+}
+
 void AsyncWiFiMulti::tryNextAP() {
     if(currentAp != foundAPs.end()) {
-        DBG("Trying next AP: %s", currentAp->ssid.c_str());
+        lVerbose("Trying next AP: %s", currentAp->ssid.c_str());
         WiFi.begin(currentAp->ssid.c_str(), currentAp->passphrase.c_str());
     } else {
-        DBG("No more APs to try");
-        if(onFailureCallback) {
-            onFailureCallback();
-        }
-        running = false;
+        lVerbose("No more APs to try");
+        onFailure();
     }
 }
