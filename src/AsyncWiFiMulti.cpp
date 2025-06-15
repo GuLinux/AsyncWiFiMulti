@@ -82,7 +82,7 @@ void AsyncWiFiMulti::onEvent(arduino_event_id_t event_type, const arduino_event_
         if(event_type == ARDUINO_EVENT_WIFI_STA_DISCONNECTED) {
             char ssid[33] = {0};
             memcpy(ssid, event_info.wifi_sta_disconnected.ssid, event_info.wifi_sta_disconnected.ssid_len);
-            lInfo("WiFi disconnected: %s, reason: %d", ssid, event_info.wifi_sta_disconnected.reason);
+            lInfo("WiFi disconnected: %s, reason: %s", ssid, WiFi.disconnectReasonName(static_cast<wifi_err_reason_t>(event_info.wifi_sta_disconnected.reason)));
             if(onDisconnectedCallback) {
                 onDisconnectedCallback(ssid, event_info.wifi_sta_disconnected.reason);
             }
@@ -95,7 +95,7 @@ void AsyncWiFiMulti::onEvent(arduino_event_id_t event_type, const arduino_event_
         }
         return;
     }
-    lDebug("Event received: %d", event_type);
+    lDebug("Event received: %s", WiFi.eventName(event_type));
     switch (event_type) {
     case ARDUINO_EVENT_WIFI_SCAN_DONE:
         onScanDone(event_info.wifi_scan_done);  
