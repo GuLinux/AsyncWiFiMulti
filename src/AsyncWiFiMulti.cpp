@@ -87,6 +87,12 @@ void AsyncWiFiMulti::onEvent(arduino_event_id_t event_type, const arduino_event_
                 onDisconnectedCallback(ssid, event_info.wifi_sta_disconnected.reason);
             }
         }
+        if(event_type == ARDUINO_EVENT_WIFI_STA_LOST_IP) {
+            lInfo("WiFi: lost IP event received");
+            if(onDisconnectedCallback) {
+                onDisconnectedCallback(WiFi.SSID().c_str(), -1);
+            }
+        }
         return;
     }
     lDebug("Event received: %d", event_type);
@@ -96,6 +102,11 @@ void AsyncWiFiMulti::onEvent(arduino_event_id_t event_type, const arduino_event_
         break;
     case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
         lVerbose("WiFi disconnected: reason=%d", event_info.wifi_sta_disconnected.reason);
+        currentAp++;
+        tryNextAP();
+        break;
+    case ARDUINO_EVENT_WIFI_STA_LOST_IP:
+    lVerbose("WiFi lost IP: SSID=%s", WiFi.SSID().c_str());
         currentAp++;
         tryNextAP();
         break;
