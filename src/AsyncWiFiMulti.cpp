@@ -165,10 +165,10 @@ void AsyncWiFiMulti::onScanDone(const wifi_event_sta_scan_done_t &scanInfo) {
 
 void GuLinux::AsyncWiFiMulti::onFailure() {
     lInfo("Failed to connect to any configured APs");
+    running = false;
     if(onFailureCallback) {
         onFailureCallback();
     }
-    running = false;
 }
 
 void AsyncWiFiMulti::tryNextAP() {
