@@ -57,7 +57,8 @@ bool AsyncWiFiMulti::start() {
         lInfo("AsyncWiFiMulti already running");
         return false;
     }
-    WiFi.disconnect(true);
+    WiFi.disconnect(false, false);
+    delay(10); // Ensure WiFi is disconnected before starting
     WiFi.mode(WIFI_STA);
 
     WiFi.scanNetworks(true, true);
