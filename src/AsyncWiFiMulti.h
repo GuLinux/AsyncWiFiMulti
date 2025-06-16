@@ -27,6 +27,7 @@ class AsyncWiFiMulti
 public:
     AsyncWiFiMulti();
     ~AsyncWiFiMulti();
+    enum Status { Idle, Running, Connected };
 
     bool addAP(const char* ssid, const char *passphrase = nullptr);
     bool start();
@@ -56,8 +57,13 @@ public:
     void onDisconnected(OnDisconnected callback) {
         onDisconnectedCallback = callback;
     }
+    void clear();
+
+    Status status() const { return _status; }
+    const char *statusString();
 
 private:
+    Status _status = Idle;
     ApSettings::List configuredAPs;
     ApSettings::List foundAPs;
     ApSettings::List::iterator currentAp;
@@ -66,12 +72,11 @@ private:
     OnFailure onFailureCallback;
     OnDisconnected onDisconnectedCallback;
 
-    bool running = false;
-
     void onEvent(arduino_event_id_t, const arduino_event_info_t&);
     void onScanDone(const wifi_event_sta_scan_done_t &scanInfo);
     void onFailure();
     void tryNextAP();
+    
     wifi_event_id_t event_id = 0;
 };
 }
