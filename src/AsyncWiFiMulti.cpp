@@ -70,7 +70,14 @@ bool AsyncWiFiMulti::start() {
     WiFi.disconnect(false, false);
     delay(10); // Ensure WiFi is disconnected before starting
     WiFi.mode(WIFI_STA);
+    return rescan();
+}
 
+bool GuLinux::AsyncWiFiMulti::rescan() {
+    if(!event_id) {
+        lInfo("No event handler registered, call start() first");
+        return false;
+    }
     WiFi.scanNetworks(true, true);
     
     _status = Running;

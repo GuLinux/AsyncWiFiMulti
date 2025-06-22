@@ -31,6 +31,7 @@ public:
 
     bool addAP(const char* ssid, const char *passphrase = nullptr);
     bool start();
+    bool rescan();
 
     struct ApSettings {
         std::string ssid;
