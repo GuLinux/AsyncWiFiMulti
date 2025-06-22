@@ -78,6 +78,14 @@ bool GuLinux::AsyncWiFiMulti::rescan() {
         lInfo("No event handler registered, call start() first");
         return false;
     }
+    if(_status == Status::Running) {
+        lInfo("AsyncWiFiMulti already running");
+        return false;
+    }
+    if(_status == Status::Connected) {
+        lInfo("AsyncWiFiMulti already connected, disconnect first");
+        return false;
+    }
     WiFi.scanNetworks(true, true);
     
     _status = Running;
